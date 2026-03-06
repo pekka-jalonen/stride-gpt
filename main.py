@@ -237,10 +237,16 @@ def analyze_github_repo(repo_url):
     repo_name = parts[-1]
 
     # Initialize PyGithub
-    g = Github(
-        st.session_state.get("github_api_key", ""),
-        base_url=f"{parsed_url.scheme}://{parsed_url.hostname}/api/v3",
-    )
+    # Determine the correct base URL
+    if parsed_url.hostname == "github.com":
+        # Use default for public GitHub
+        g = Github(st.session_state.get("github_api_key", ""))
+    else:
+        # Use Enterprise endpoint for custom hostnames
+        g = Github(
+            st.session_state.get("github_api_key", ""),
+            base_url=f"{parsed_url.scheme}://{parsed_url.hostname}/api/v3",
+        )
 
     # Get the repository
     repo = g.get_repo(f"{owner}/{repo_name}")
